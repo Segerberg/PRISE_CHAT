@@ -127,3 +127,11 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# SQLITE
+.db
+.sqlite
+.sqilte3
+
+# Project specific
+/temp_dev
