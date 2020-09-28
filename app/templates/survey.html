@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{config['FLASK_APP_BRAND']}}{% endblock %}
+{% block content %}
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">Survey ID</th>
+      <th scope="col">Active</th>
+      <th scope="col">Persistant</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for survey in surveys %}
+    <tr>
+      <td>{{ survey.name }}</td>
+      <td>{{ survey.survey_id }}</td>
+      <td>{{ survey.survey_id }}<span class="glyphicon glyphicon-ok"></span> <span class="glyphicon glyphicon-remove"></span></td>
+      <td>{{ survey.persistant }}</td>
+    </tr>
+     {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
