@@ -26,18 +26,37 @@ class Survey(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     name = db.Column(db.String(128), index=True, unique=True)
     active = db.Column(db.Boolean)
-    persistant = db.Column(db.Boolean)
+    persistent = db.Column(db.Boolean)
     survey_id = db.Column(db.String(128))
     chats = db.relationship('Chat', backref='Survey', lazy='dynamic')
 
     def __repr__(self):
-        return '<Survey {}>'.format(self.name)
+        return self.name
 
 
 class Chat(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     name = db.Column(db.String(128), index=True, unique=True)
     survey_id = db.Column(db.Integer, db.ForeignKey('survey.id'))
+    posts = db.relationship('Post', backref='Post', lazy='dynamic')
 
     def __repr__(self):
-        return '<Chat {}>'.format(self.name)
+        return self.name
+
+    @property
+    def serialize(self):
+        """Return chat data in easily serializable format"""
+        return {
+            'id': self.id,
+            'name': self.name,
+            'survey_id': self.survey_id
+        }
+
+class Post(db.Model):
+    id = db.Column(db.Integer,primary_key=True)
+    message = db.Column(db.Text)
+    received = db.Column(db.DateTime)
+    chat_name = db.Column(db.String, db.ForeignKey('chat.name'))
+
+    def __repr__(self):
+        return '<Post {}>'.format(self.text)

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% include 'add_survey_modal.html' %}
 {% block title %}{{config['FLASK_APP_BRAND']}}{% endblock %}
 {% block content %}
 <table class="table">
@@ -8,17 +9,21 @@
       <th scope="col">Survey ID</th>
       <th scope="col">Active</th>
       <th scope="col">Persistant</th>
+      <th scope="col">Actions</th>
     </tr>
   </thead>
   <tbody>
     {% for survey in surveys %}
     <tr>
-      <td>{{ survey.name }}</td>
+      <td><a href="{{url_for('survey_detail', id=survey.survey_id)}}">{{ survey.name }}</a></td>
       <td>{{ survey.survey_id }}</td>
-      <td>{{ survey.survey_id }}<span class="glyphicon glyphicon-ok"></span> <span class="glyphicon glyphicon-remove"></span></td>
-      <td>{{ survey.persistant }}</td>
+      <td>{% if survey.active == True %}<span class="glyphicon glyphicon-ok" style="color:green"></span> {% else %} <span class="glyphicon glyphicon-remove" style="color:darkred"></span> {% endif %}</td>
+      <td>{% if survey.persistent == True %}<span class="glyphicon glyphicon-ok" style="color:green"></span> {% else %} <span class="glyphicon glyphicon-remove" style="color:darkred"></span> {% endif %}</td>
+      <td><form onsubmit="return confirm('Do you really want to delete the survey?');"  method="POST" action="{{ url_for('delete_survey', id=survey.id) }}"><button type="submit">Delete</button></form></td>
     </tr>
      {% endfor %}
   </tbody>
 </table>
+{% endblock %}
+{% block add_survey_modal %}
 {% endblock %}

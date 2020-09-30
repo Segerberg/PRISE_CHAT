@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 from threading import Lock
 import functools
-from flask import render_template, session, request, copy_current_request_context, flash, redirect, url_for
+from flask import render_template, session, request, copy_current_request_context, flash, redirect, url_for, jsonify
 from flask_socketio import SocketIO, emit, join_room, leave_room, close_room, rooms, disconnect
 from app import app, db
-from app.forms import LoginForm
+from app.forms import LoginForm, AddSurveyForm
 from app.models import User, Survey, Chat
 from flask_login import current_user, login_user, logout_user, login_required
-
+from sqlalchemy.exc import IntegrityError
 async_mode = None
 socketio = SocketIO(app, async_mode=async_mode, cors_allowed_origins="*")
 thread = None
@@ -35,26 +35,61 @@ def authenticated_only(f):
 @app.route('/')
 @login_required
 def index():
-    return render_template('index.html', async_mode=socketio.async_mode)
+    surveys = Survey.query.all()
+    return render_template('survey.html', surveys=surveys, surveyform=AddSurveyForm(), async_mode=socketio.async_mode)
 
 
 @app.route('/surveys')
 @login_required
 def survey():
     surveys = Survey.query.all()
-    return render_template('survey.html', surveys=surveys)
+    return render_template('survey.html', surveys=surveys, surveyform=AddSurveyForm())
+
+@app.route('/add_survey(<data>',methods=['POST'])
+@login_required
+def add_survey(data):
+    form = AddSurveyForm()
+    if form.validate_on_submit():
+        try:
+            s = Survey(name=form.name.data,survey_id=form.survey_id.data,
+                       active=form.active.data, persistent=form.persistent.data)
+            db.session.add(s)
+            db.session.commit()
+        except IntegrityError:
+            flash('Survey already registered')
+    return redirect(url_for('survey'))
+
+@app.route('/delete_survey(<id>',methods=['POST'])
+@login_required
+def delete_survey(id):
+    s = Survey.query.filter_by(id=int(id)).first()
+    db.session.delete(s)
+    db.session.commit()
+    return redirect(url_for('survey'))
 
 @app.route('/surveys/<id>')
 @login_required
 def survey_detail(id):
     #surveys = Survey.query.filter_by(survey_id=id).first_or_404()
-    chats = Chat.query.all()
-    posts = [
-        {'author': survey, 'body': 'Test post #1'},
-        {'author': survey, 'body': 'Test post #2'}
-    ]
+    chats = Chat.query.filter_by(survey_id=id)
     return render_template('survey_detail.html', chats=chats)
 
+
+
+@app.route('/_chat', methods=['GET', 'POST'])
+def _chat():
+    id = request.args.get('id')
+    chat = Chat.query.filter_by(survey_id=123, id=id).first_or_404()
+    print(chat.name)
+
+    return chat.name#jsonify(chat=chat)
+
+"""
+@app.route('/survey_detail', methods=['GET', 'POST'])
+def get_survey_detail():
+    chats = Chat.query.filter_by(survey_id=123).all()
+    return jsonify(chats=[i.serialize for i in chats])
+"""
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -94,13 +129,9 @@ def test_broadcast_message(message):
 
 @socketio.on('join', namespace='/test')
 def join(message):
-    get_or_create(db.session, Chat, name=message['room'])
-    #chat = Chat(name=message['room'])
-    #db.session.add(chat)
-    #db.session.commit()
-
+    get_or_create(db.session, Chat, name=message['room'], survey_id=message['survey'])
     join_room(message['room'])
-    print("HÄR", message['room'])
+    print(message)
     session['receive_count'] = session.get('receive_count', 0) + 1
     emit('my_response',
          {'data': 'In rooms: ' + ', '.join(rooms()),
@@ -110,6 +141,8 @@ def join(message):
 @socketio.on('leave', namespace='/test')
 def leave(message):
     leave_room(message['room'])
+    chat = Chat.query.filter_by(survey_id=id).first_or_404()
+    #db.session.delete(p)
     session['receive_count'] = session.get('receive_count', 0) + 1
     emit('my_response',
          {'data': 'In rooms: ' + ', '.join(rooms()),
@@ -128,7 +161,7 @@ def close(message):
 @socketio.on('my_room_event', namespace='/test')
 def send_room_message(message):
     ## insert to chat to db
-    session['receive_count'] = session.get('receive_count', 0) + 1
+    print('ROOM EVENT', message['room'])
     emit('my_response',
-         {'data': message['data'], 'count':" session['receive_count']"},
+         {'data': message['data'],'room':message['room']},
          room=message['room'])

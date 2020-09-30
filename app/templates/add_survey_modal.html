@@ -1,0 +1,22 @@
+{% import 'bootstrap/wtf.html' as wtf %}
+{% block add_survey_modal %}
+<div id="addSurveyModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <form method="POST" action="{{ url_for('add_survey', data=surveyform) }}">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Add survey</h4>
+                </div>
+                <div class="modal-body">
+                    {{ wtf.quick_form(surveyform) }}
+                </div>
+                <div class="modal-footer">
+                    <input class="btn btn-primary" type="submit" value="Add">
+                    <button type="button" class="btn btn-green" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
