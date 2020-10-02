@@ -84,6 +84,12 @@ def _chat():
 
     return chat.name#jsonify(chat=chat)
 
+@app.route('/_chatlist', methods=['GET', 'POST'])
+def _chatlist():
+    chats = Chat.query.filter_by(survey_id=123).all()
+
+    return jsonify(json_list=[i.serialize for i in chats])
+
 """
 @app.route('/survey_detail', methods=['GET', 'POST'])
 def get_survey_detail():
