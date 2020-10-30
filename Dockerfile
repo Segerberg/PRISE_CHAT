@@ -1,4 +1,4 @@
-FROM python:3.6-alpine
+FROM python:3.8-alpine
 
 RUN adduser -D chat
 
@@ -20,4 +20,4 @@ RUN chown -R chat:chat ./
 USER chat
 
 EXPOSE 5000
-ENTRYPOINT ["./boot.sh"]
+#ENTRYPOINT ["./boot.sh"]
