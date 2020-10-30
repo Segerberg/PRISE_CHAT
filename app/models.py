@@ -36,19 +36,23 @@ class Survey(db.Model):
 
 class Chat(db.Model):
     id = db.Column(db.Integer,primary_key=True)
-    name = db.Column(db.String(128), index=True, unique=True)
+    participant_id = db.Column(db.String(128), index=True, unique=True)
     survey_id = db.Column(db.Integer, db.ForeignKey('survey.id'))
+    question_id = db.Column(db.String(128))
+    question_info = db.Column(db.String(128))
     posts = db.relationship('Post', backref='Post', lazy='dynamic')
+    #question_info = db.relationship('QuestionInfo', backref='questioninfo', lazy='dynamic')
 
     def __repr__(self):
-        return self.name
+        return self.participant_id
 
     @property
     def serialize(self):
         """Return chat data in easily serializable format"""
         return {
             'id': self.id,
-            'name': self.name,
+            'participant_id': self.participant_id,
+            'question_id': self.participant_id,
             'survey_id': self.survey_id
         }
 
@@ -56,7 +60,19 @@ class Post(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     message = db.Column(db.Text)
     received = db.Column(db.DateTime)
-    chat_name = db.Column(db.String, db.ForeignKey('chat.name'))
+    chat_name = db.Column(db.String, db.ForeignKey('chat.participant_id'))
 
     def __repr__(self):
         return '<Post {}>'.format(self.text)
+
+
+"""class QuestionInfo(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    qual_q_id = db.Column(db.String(128))
+    qual_q_text = db.Column(db.String(128))
+    question_id = db.Column(db.String, db.ForeignKey('chat.participant_id'))
+
+    def __repr__(self):
+        return '<QuestionText {}>'.format(self.qual_q_text)"""
+
+
