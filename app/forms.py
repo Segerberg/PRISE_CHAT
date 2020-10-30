@@ -7,3 +7,11 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     remember_me = BooleanField('Remember Me')
     submit = SubmitField('Sign In')
+
+
+class AddSurveyForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    survey_id= StringField('Survey ID', validators=[DataRequired()])
+    active = BooleanField('Active')
+    persistent = BooleanField('Persistent')
+    #submit = SubmitField('Add')

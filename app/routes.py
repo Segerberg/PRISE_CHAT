@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 from threading import Lock
 import functools
-from flask import render_template, session, request, copy_current_request_context, flash, redirect, url_for
+from flask import render_template, session, request, copy_current_request_context, flash, redirect, url_for, jsonify
 from flask_socketio import SocketIO, emit, join_room, leave_room, close_room, rooms, disconnect
 from app import app, db
-from app.forms import LoginForm
+from app.forms import LoginForm, AddSurveyForm
 from app.models import User, Survey, Chat
 from flask_login import current_user, login_user, logout_user, login_required
+from sqlalchemy.exc import IntegrityError
+
 
 async_mode = None
 socketio = SocketIO(app, async_mode=async_mode, cors_allowed_origins="*")
@@ -32,28 +34,62 @@ def authenticated_only(f):
             return f(*args, **kwargs)
     return wrapped
 
+
+
 @app.route('/')
 @login_required
 def index():
-    return render_template('index.html', async_mode=socketio.async_mode)
+    surveys = Survey.query.all()
+    return render_template('survey.html', surveys=surveys, surveyform=AddSurveyForm(), async_mode=socketio.async_mode)
 
 
 @app.route('/surveys')
 @login_required
 def survey():
     surveys = Survey.query.all()
-    return render_template('survey.html', surveys=surveys)
+    return render_template('survey.html', surveys=surveys, surveyform=AddSurveyForm())
+
+@app.route('/add_survey(<data>',methods=['POST'])
+@login_required
+def add_survey(data):
+    form = AddSurveyForm()
+    if form.validate_on_submit():
+        try:
+            s = Survey(name=form.name.data,survey_id=form.survey_id.data,
+                       active=form.active.data, persistent=form.persistent.data)
+            db.session.add(s)
+            db.session.commit()
+        except IntegrityError:
+            flash('Survey already registered')
+    return redirect(url_for('survey'))
+
+@app.route('/delete_survey(<id>',methods=['POST'])
+@login_required
+def delete_survey(id):
+    s = Survey.query.filter_by(id=int(id)).first()
+    db.session.delete(s)
+    db.session.commit()
+    return redirect(url_for('survey'))
 
 @app.route('/surveys/<id>')
 @login_required
 def survey_detail(id):
     #surveys = Survey.query.filter_by(survey_id=id).first_or_404()
-    chats = Chat.query.all()
-    posts = [
-        {'author': survey, 'body': 'Test post #1'},
-        {'author': survey, 'body': 'Test post #2'}
-    ]
+    chats = Chat.query.filter_by(survey_id=id)
     return render_template('survey_detail.html', chats=chats)
+
+
+@app.route('/_chat', methods=['GET', 'POST'])
+def _chat():
+    id = request.args.get('id')
+    chat = Chat.query.filter_by(survey_id=123, id=id).first_or_404()
+    print(chat.participant_id)
+    return chat.participant_id
+
+@app.route('/_chatlist', methods=['GET', 'POST'])
+def _chatlist():
+    chats = Chat.query.filter_by(survey_id=123).all()
+    return jsonify(json_list=[i.serialize for i in chats])
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -77,13 +113,6 @@ def logout():
     return redirect(url_for('login'))
 
 
-@socketio.on('my_event', namespace='/test')
-def test_message(message):
-    session['receive_count'] = session.get('receive_count', 0) + 1
-    emit('my_response',
-         {'data': message['data'], 'count': 'hallå'})
-
-
 @socketio.on('my_broadcast_event', namespace='/test')
 def test_broadcast_message(message):
     session['receive_count'] = session.get('receive_count', 0) + 1
@@ -94,41 +123,14 @@ def test_broadcast_message(message):
 
 @socketio.on('join', namespace='/test')
 def join(message):
-    get_or_create(db.session, Chat, name=message['room'])
-    #chat = Chat(name=message['room'])
-    #db.session.add(chat)
-    #db.session.commit()
-
+    get_or_create(db.session, Chat, participant_id=message['room'], survey_id=message['survey'],)
     join_room(message['room'])
-    print("HÄR", message['room'])
-    session['receive_count'] = session.get('receive_count', 0) + 1
-    emit('my_response',
-         {'data': 'In rooms: ' + ', '.join(rooms()),
-          'count': session['receive_count']})
-
-
-@socketio.on('leave', namespace='/test')
-def leave(message):
-    leave_room(message['room'])
-    session['receive_count'] = session.get('receive_count', 0) + 1
-    emit('my_response',
-         {'data': 'In rooms: ' + ', '.join(rooms()),
-          'count': session['receive_count']})
-
-
-@socketio.on('close_room', namespace='/test')
-def close(message):
-    session['receive_count'] = session.get('receive_count', 0) + 1
-    emit('my_response', {'data': 'Room ' + message['room'] + ' is closing.',
-                         'count': session['receive_count']},
-         room=message['room'])
-    close_room(message['room'])
 
 
 @socketio.on('my_room_event', namespace='/test')
 def send_room_message(message):
-    ## insert to chat to db
-    session['receive_count'] = session.get('receive_count', 0) + 1
+    # todo EXCEPT data keyerror
+    print('ROOM EVENT', message['room'])
     emit('my_response',
-         {'data': message['data'], 'count':" session['receive_count']"},
+         {'data': message['data'],'room':message['room']},
          room=message['room'])

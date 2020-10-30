@@ -1,11 +1,263 @@
 {% extends "base.html" %}
 {% import 'bootstrap/wtf.html' as wtf %}
 {% block content %}
-    <script src="//code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+{% for chat in chats %}
+{% endfor %}
+<style>
+    .blue {
+  color: blue;
+}
+    .message-bubble {
+        padding: 10px 0px 10px 0px;
+    }
+
+    .message-bubble > * {
+        padding-left: 10px;
+    }
+
+    .panel-body {
+        padding: 0px;
+    }
+
+    .panel-heading {
+        background-color: dimgrey !important;
+        color: white !important;
+    }
+
+    .participant-list {
+        max-height: 600px;
+
+        overflow: scroll;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .chat-body {
+        height: 300px;
+        max-height: 300px;
+        overflow: scroll;
+        -webkit-overflow-scrolling: touch;
+    }
+</style>
+<script src="//code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+<div class="row">
+    <div class="col-md-3">
+        <div class="panel panel-primary" id="result_panel">
+            <div class="panel-heading"><h3 class="panel-title">Participants</h3>
+            </div>
+            <div class="panel-body participant-list">
+                <ul class="list-group participants">
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div id="myid" class="col-md-3"></div>
+
+    <div class="col-md-6">
+        <!--
+        <div class="panel panel-default">
+            <div class="panel-heading">Panel heading without title</div>
+            <div class="panel-body">
+                <div class="container">
+                    <div class="row message-bubble">
+                        <p class="text-muted">Matt Townsen</p>
+                        <p>nej</p>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <div class="input-group">
+                        <input type="text" class="form-control">
+                        <span class="input-group-btn">
+                    <a href="#" class="btn btn-default" type="button">Send</a>
+                  </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+-->
+
+    </div>
+</div>
+
+<script type=text/javascript>
+    function create_chat_window(id) {
+        if ($('#' + id).length) {
+            console.log("Chat window " + id + " already exists")
+            $("#" + id).show();
+        } else {
+            socket.emit('join', {room: id, survey: '123'});
+            let panel = jQuery('<div/>', {
+                id: id,
+                class: 'panel panel-default'
+            });
+
+            let panelheading = jQuery('<div/>/', {
+                class: 'panel-heading chat-box-panel',
+                id:'chat-box-panel-id_'+id
+            });
+            panelheading.html(id)
+
+            let panelbody = jQuery('<div/>', {
+                class: 'panel-body chat-body'
+            })
+
+            let container = jQuery('<div/>', {
+                id: 'cid' + id,
+                class: 'container'
+            });
+
+            let panelfooter = jQuery('<div/>', {
+                class: 'panel-footer'
+            });
+
+            let inputgroup = jQuery('<div/>', {
+                class: 'input-group'
+            });
+
+            let input = jQuery('<input/>', {
+                id: 'inputid_' + id,
+                class: 'form-control',
+                type: 'text'
+            });
+
+            let span = jQuery('<span/>', {
+                    class: 'input-group-btn'
+                }
+            );
+            let button = jQuery('<a/>', {
+                id: 'btnid_' + id,
+                href: '#',
+                class: 'btn btn-default send',
+                type: 'button',
+            });
+            button.html('Send');
+            button.on('click', emit_test(id));
+            span = span.append(button);
+            inputgroup = inputgroup.append(input).append(span);
+            panelfooter = panelfooter.append(inputgroup);
+            panelbody = panelbody.append(container);
+
+            panel.append(panelheading).append(panelbody).append(panelfooter).appendTo('#myid');
+        }
+    }
+</script>
+<script>
+    $(document).ready(function () {
+        $(document).on('click', '.send', function () {
+            emit_test(this.id);
+            let inputid = this.id.replace('btnid_','#inputid_');
+            $(inputid).val('');
+        });
+        $(document).on('click', '.chatt-button', function () {
+
+            let chattid = this.id.replace('chatbtnid_','');
+            create_chat_window(chattid)
+              $("#chatbtnid_" + chattid).removeClass('btn-warning');
+        $("#chatbtnid_" + chattid).addClass('btn-default');
+        });
+           $(document).on('click', '.chat-box-panel', function () {
+                let chattid = this.id.replace('chat-box-panel-id_','');
+               $("#" + chattid).hide();
 
 
-    {% for chat in chats %}
-    <p>{{chat}}</p>
-    {% endfor %}
+            //create_chat_window(chattid)
+        });
+
+    });
+</script>
+
+<script type="text/javascript" charset="utf-8">
+    const socket = io('http://127.0.0.1:5000/test');
+    $(document).ready(function () {
+        namespace = '/test';
+        socket.on('connect', function () {
+            //socket.emit('my_room_event', {room: '3', data: ('En forskare finns här ')});
+        });
+
+        get_chat_data();
+
+    });
+</script>
+
+<script>
+    function emit_test(id){
+        let newid = id.replace('btnid_','');
+        socket.emit('my_room_event', {room: newid, data: $('#inputid_'+newid).val() });
+    }
+
+
+</script>
+<script>
+    socket.on('my_response', function (msg, cb) {
+        console.log('Got it from ', msg.room)
+        $('#cid' + msg.room).append('<br>' + $('<div/>').text(msg.data).html());
+        $("#chatbtnid_" + msg.room).removeClass('btn-default');
+        $("#chatbtnid_" + msg.room).addClass('btn-warning');
+
+
+        $("#cid" + msg.room).animate({scrollTop: 200000}, "slow");
+
+        //$("#liid_"+msg.room).effect("highlight", {}, 3000);
+
+
+        if (cb)
+            cb();
+    });
+</script>
+<script type=text/javascript>
+    function get_chat_data() {
+        $.get('/_chatlist', {}).done(function (response) {
+            console.log("RESPONSE", response)
+
+            $.each(response, function (key, val) {
+                $.each(val, function (key, val) {
+                    if (!$('#liid_' + val.participant_id).length) {
+
+                    let cbutton = jQuery('<a/>', {
+                        id: 'chatbtnid_' + val.participant_id,
+                        href: '#',
+                        class: 'btn btn-default chatt-button',
+                        type: 'button',
+                    }).html(val.participant_id);
+                    let li = jQuery('<li>', {
+                        class: 'list-group-item',
+                        id: 'liid_' + val.participant_id,
+                    });
+
+                    li.append(cbutton);
+                    $(".participants").prepend(li);
+                    create_chat_window(val.participant_id);
+                    $("#" + val.participant_id).hide();
+                }else{
+                        console.log('ELSE')
+                    }
+
+                })
+            });
+            return response;
+
+        }).fail(function () {
+            $('#chatlist').text("{{ ('Error: Could not contact server.') }}");
+        });
+    }
+</script>
+<script>
+    setInterval( function(){
+    get_chat_data()
+  }  , 5000 );
+
+
+</script>
+<script>
+// Warning before leaving the page (back button, or outgoinglink)
+window.onbeforeunload = function() {
+   return "Are you sure you wan't to leave the page? Leaving will clear all chat history!";
+};
+</script>
+
+<p id="chatbox"></p>
+
+<p id="chatlist"></p>
+
 {% endblock %}
