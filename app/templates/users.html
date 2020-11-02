@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% include 'add_user_modal.html' %}
+{% block title %}{{config['FLASK_APP_BRAND']}}{% endblock %}
+{% block content %}
+ <button class="btn btn-success pull-right" data-toggle="modal" data-target="#addUserModal" href="#">Add User</button>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">ID</th>
+      <th scope="col">Username</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for user in users %}
+    <tr>
+      <td>{{ user.id }}</td>
+      <td>{{ user.username }}</td>
+      <td><form onsubmit="return confirm('Do you really want to delete {{user.username}}');"  method="POST" action="{{ url_for('delete_user', id=user.id) }}"><button type="submit">Delete</button></form></td>
+    </tr>
+     {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+{% block add_user_modal %}
+{% endblock %}
