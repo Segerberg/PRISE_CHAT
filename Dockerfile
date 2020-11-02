@@ -10,6 +10,7 @@ RUN pip install -r requirements.txt
 RUN pip install gunicorn
 
 COPY app app
+COPY files files
 #COPY migrations migrations
 COPY chat.py config.py boot.sh create_superuser.py ./
 RUN chmod +x boot.sh
@@ -18,6 +19,7 @@ ENV FLASK_APP chat.py
 ENV FLASK_APP_BRAND PRISE CHAT
 ENV SUPERUSER_NAME superuser
 ENV SUPERUSER_PASSWORD password
+
 
 RUN chown -R chat:chat ./
 USER chat
