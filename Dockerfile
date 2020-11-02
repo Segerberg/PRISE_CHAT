@@ -26,6 +26,6 @@ RUN flask db init
 RUN flask db migrate
 RUN flask db upgrade
 RUN python create_superuser.py
-
+VOLUME /home/chat/files
 EXPOSE 5000
 ENTRYPOINT ["sh","boot.sh"]
