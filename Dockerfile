@@ -5,19 +5,27 @@ RUN adduser -D chat
 WORKDIR /home/chat
 
 COPY requirements.txt requirements.txt
-RUN python -m venv venv
-RUN venv/bin/pip install -r requirements.txt
-RUN venv/bin/pip install gunicorn
+
+RUN pip install -r requirements.txt
+RUN pip install gunicorn
 
 COPY app app
-COPY migrations migrations
-COPY chat.py config.py boot.sh app.db ./
+#COPY migrations migrations
+COPY chat.py config.py boot.sh create_superuser.py ./
 RUN chmod +x boot.sh
 
 ENV FLASK_APP chat.py
+ENV FLASK_APP_BRAND PRISE CHAT
+ENV SUPERUSER_NAME superuser
+ENV SUPERUSER_PASSWORD password
 
 RUN chown -R chat:chat ./
 USER chat
 
+RUN flask db init
+RUN flask db migrate
+RUN flask db upgrade
+RUN python create_superuser.py
+
 EXPOSE 5000
-#ENTRYPOINT ["./boot.sh"]
+ENTRYPOINT ["sh","boot.sh"]
