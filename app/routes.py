@@ -4,7 +4,7 @@ import functools
 from flask import render_template, session, request, copy_current_request_context, flash, redirect, url_for, jsonify
 from flask_socketio import SocketIO, emit, join_room, leave_room, close_room, rooms, disconnect
 from app import app, db
-from app.forms import LoginForm, AddSurveyForm
+from app.forms import LoginForm, AddSurveyForm, AddUserForm
 from app.models import User, Survey, Chat
 from flask_login import current_user, login_user, logout_user, login_required
 from sqlalchemy.exc import IntegrityError
@@ -41,6 +41,35 @@ def authenticated_only(f):
 def index():
     surveys = Survey.query.all()
     return render_template('survey.html', surveys=surveys, surveyform=AddSurveyForm(), async_mode=socketio.async_mode)
+
+@app.route('/users')
+@login_required
+def users():
+    users = User.query.all()
+    return render_template('users.html', users=users, userform=AddUserForm())
+
+@app.route('/add_user(<data>',methods=['POST'])
+@login_required
+def add_user(data):
+    form = AddUserForm()
+    if form.validate_on_submit():
+        try:
+            u = User(username=form.username.data)
+            u.set_password(form.password.data)
+            db.session.add(u)
+            db.session.commit()
+        except IntegrityError:
+            flash('User already exists')
+    return redirect(url_for('users'))
+
+@app.route('/delete_user(<id>',methods=['POST'])
+@login_required
+def delete_user(id):
+    u = User.query.filter_by(id=int(id)).first()
+    db.session.delete(u)
+    db.session.commit()
+    return redirect(url_for('users'))
+
 
 
 @app.route('/surveys')
