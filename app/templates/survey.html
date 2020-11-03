@@ -8,8 +8,6 @@
     <tr>
       <th scope="col">Name</th>
       <th scope="col">Survey ID</th>
-      <th scope="col">Active</th>
-      <th scope="col">Persistant</th>
       <th scope="col">Actions</th>
     </tr>
   </thead>
@@ -18,8 +16,6 @@
     <tr>
       <td><a href="{{url_for('survey_detail', id=survey.survey_id)}}">{{ survey.name }}</a></td>
       <td>{{ survey.survey_id }}</td>
-      <td>{% if survey.active == True %}<span class="glyphicon glyphicon-ok" style="color:green"></span> {% else %} <span class="glyphicon glyphicon-remove" style="color:darkred"></span> {% endif %}</td>
-      <td>{% if survey.persistent == True %}<span class="glyphicon glyphicon-ok" style="color:green"></span> {% else %} <span class="glyphicon glyphicon-remove" style="color:darkred"></span> {% endif %}</td>
       <td><form onsubmit="return confirm('Do you really want to delete the survey?');"  method="POST" action="{{ url_for('delete_survey', id=survey.id) }}"><button type="submit">Delete</button></form></td>
     </tr>
      {% endfor %}

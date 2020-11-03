@@ -71,7 +71,6 @@ def delete_user(id):
     return redirect(url_for('users'))
 
 
-
 @app.route('/surveys')
 @login_required
 def survey():
@@ -84,8 +83,7 @@ def add_survey(data):
     form = AddSurveyForm()
     if form.validate_on_submit():
         try:
-            s = Survey(name=form.name.data,survey_id=form.survey_id.data,
-                       active=form.active.data, persistent=form.persistent.data)
+            s = Survey(name=form.name.data,survey_id=form.survey_id.data)
             db.session.add(s)
             db.session.commit()
         except IntegrityError:

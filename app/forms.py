@@ -12,9 +12,7 @@ class LoginForm(FlaskForm):
 class AddSurveyForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
     survey_id= StringField('Survey ID', validators=[DataRequired()])
-    active = BooleanField('Active')
-    persistent = BooleanField('Persistent')
-    #submit = SubmitField('Add')
+
 
 class AddUserForm(FlaskForm):
     username = StringField('Name', validators=[DataRequired()])
