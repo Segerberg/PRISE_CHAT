@@ -159,9 +159,9 @@
 </script>
 
 <script type="text/javascript" charset="utf-8">
-    const socket = io('http://127.0.0.1:5000/test');
+    const socket = io('http://127.0.0.1:5000/prise');
     $(document).ready(function () {
-        namespace = '/test';
+        namespace = '/prise';
         socket.on('connect', function () {
             //socket.emit('my_room_event', {room: '3', data: ('En forskare finns här ')});
         });

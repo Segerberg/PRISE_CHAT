@@ -1,10 +1,10 @@
 let qid = this.questionId;
 $(document).ready(function () {
     let resp_id = '${e://Field/ResponseID}'
-    namespace = '/test';
+    namespace = '/prise';
     let survey_id = '${e://Field/SurveyID}';
 
-    const socket = io('http://127.0.0.1:5000/test');
+    const socket = io('http://127.0.0.1:5000/prise');
 
     socket.on('connect', function () {
         //socket.emit('my_event', {data: 'I\'m connected!'});

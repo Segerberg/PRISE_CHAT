@@ -144,7 +144,7 @@ def logout():
     return redirect(url_for('login'))
 
 
-@socketio.on('my_broadcast_event', namespace='/test')
+@socketio.on('my_broadcast_event', namespace='/prise')
 def test_broadcast_message(message):
     session['receive_count'] = session.get('receive_count', 0) + 1
     emit('my_response',
@@ -152,13 +152,13 @@ def test_broadcast_message(message):
          broadcast=True)
 
 
-@socketio.on('join', namespace='/test')
+@socketio.on('join', namespace='/prise')
 def join(message):
     get_or_create(db.session, Chat, participant_id=message['room'], survey_id=message['survey'],)
     join_room(message['room'])
 
 
-@socketio.on('my_room_event', namespace='/test')
+@socketio.on('my_room_event', namespace='/prise')
 def send_room_message(message):
     # todo EXCEPT data keyerror
     print('ROOM EVENT', message['room'])
