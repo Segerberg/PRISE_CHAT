@@ -55,27 +55,6 @@
     <div id="myid" class="col-md-3"></div>
 
     <div class="col-md-6">
-        <!--
-        <div class="panel panel-default">
-            <div class="panel-heading">Panel heading without title</div>
-            <div class="panel-body">
-                <div class="container">
-                    <div class="row message-bubble">
-                        <p class="text-muted">Matt Townsen</p>
-                        <p>nej</p>
-                    </div>
-                </div>
-                <div class="panel-footer">
-                    <div class="input-group">
-                        <input type="text" class="form-control">
-                        <span class="input-group-btn">
-                    <a href="#" class="btn btn-default" type="button">Send</a>
-                  </span>
-                    </div>
-                </div>
-            </div>
-        </div>
--->
 
     </div>
 </div>
@@ -84,6 +63,7 @@
     function create_chat_window(id) {
         if ($('#' + id).length) {
             console.log("Chat window " + id + " already exists")
+            socket.emit('join', {room: id, survey: '123'});
             $("#" + id).show();
         } else {
             socket.emit('join', {room: id, survey: '123'});
@@ -154,7 +134,7 @@
             let chattid = this.id.replace('chatbtnid_','');
             create_chat_window(chattid)
               $("#chatbtnid_" + chattid).removeClass('btn-warning');
-        $("#chatbtnid_" + chattid).addClass('btn-default');
+              $("#chatbtnid_" + chattid).addClass('btn-default');
         });
            $(document).on('click', '.chat-box-panel', function () {
                 let chattid = this.id.replace('chat-box-panel-id_','');
