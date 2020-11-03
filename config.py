@@ -9,3 +9,4 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.environ.get('SECRET_KEY')
     FLASK_APP_BRAND = os.environ.get('FLASK_APP_BRAND')
+    CORS = os.environ.get('CORS')

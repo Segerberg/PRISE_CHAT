@@ -9,9 +9,8 @@ from app.models import User, Survey, Chat
 from flask_login import current_user, login_user, logout_user, login_required
 from sqlalchemy.exc import IntegrityError
 
-
 async_mode = None
-socketio = SocketIO(app, async_mode=async_mode, cors_allowed_origins="*")
+socketio = SocketIO(app, async_mode=async_mode, cors_allowed_origins=app.config['CORS'])
 thread = None
 thread_lock = Lock()
 
