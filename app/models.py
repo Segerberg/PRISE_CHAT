@@ -27,7 +27,7 @@ class Survey(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     name = db.Column(db.String(128), index=True, unique=True)
     survey_id = db.Column(db.String(128))
-    chats = db.relationship('Chat', backref='Survey', lazy='dynamic')
+    chats = db.relationship('Chat', backref='survey', cascade='delete', lazy='dynamic')
 
     def __repr__(self):
         return self.name

@@ -77,6 +77,7 @@ def survey():
     surveys = Survey.query.all()
     return render_template('survey.html', surveys=surveys, surveyform=AddSurveyForm())
 
+
 @app.route('/add_survey(<data>',methods=['POST'])
 @login_required
 def add_survey(data):
@@ -95,6 +96,14 @@ def add_survey(data):
 def delete_survey(id):
     s = Survey.query.filter_by(id=int(id)).first()
     db.session.delete(s)
+    Chat.query.filter_by(survey_id=s.survey_id).delete()
+    db.session.commit()
+    return redirect(url_for('survey'))
+
+@app.route('/purge_survey(<id>',methods=['POST'])
+@login_required
+def purge_survey(id):
+    c = Chat.query.filter_by(survey_id=id).delete()
     db.session.commit()
     return redirect(url_for('survey'))
 
@@ -115,7 +124,6 @@ def _chat():
 
 @app.route('/_chatlist', methods=['GET', 'POST'])
 def _chatlist():
-    # todo filter survey_id
     si = (request.args.get('survey_id'))
     chats = Chat.query.filter_by(survey_id=si).all()
     return jsonify(json_list=[i.serialize for i in chats])
@@ -158,8 +166,10 @@ def join(message):
 
 @socketio.on('my_room_event', namespace='/prise')
 def send_room_message(message):
-    # todo EXCEPT data keyerror
-    print('ROOM EVENT', message['room'])
-    emit('my_response',
-         {'data': message['data'],'room':message['room']},
-         room=message['room'])
+    try:
+        emit('my_response',
+             {'data': message['data'],'room':message['room']},
+             room=message['room'])
+    except KeyError as e:
+        print(e)
+        pass
