@@ -105,19 +105,21 @@ def delete_survey(id):
 def survey_detail(id):
     #surveys = Survey.query.filter_by(survey_id=id).first_or_404()
     chats = Chat.query.filter_by(survey_id=id)
-    return render_template('survey_detail.html', chats=chats)
+    return render_template('survey_detail.html', chats=chats, survey_id=id)
 
 
 @app.route('/_chat', methods=['GET', 'POST'])
 def _chat():
     id = request.args.get('id')
-    chat = Chat.query.filter_by(survey_id=123, id=id).first_or_404()
+    chat = Chat.query.filter_by(id=id).first_or_404()
     print(chat.participant_id)
     return chat.participant_id
 
 @app.route('/_chatlist', methods=['GET', 'POST'])
 def _chatlist():
-    chats = Chat.query.filter_by(survey_id=123).all()
+    # todo filter survey_id
+    si = (request.args.get('survey_id'))
+    chats = Chat.query.filter_by(survey_id=si).all()
     return jsonify(json_list=[i.serialize for i in chats])
 
 

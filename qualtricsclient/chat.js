@@ -2,18 +2,7 @@ let qid = this.questionId;
 $(document).ready(function () {
     let resp_id = '${e://Field/ResponseID}'
     namespace = '/test';
-    var survey_id = '123';
-   /* if (localStorage !== null) {
-        var lskey = localStorage.length - 1;
-        $.each(localStorage, function (key, value) {
-            $('#chatbox').append('<br>' + $('<div/>').text(value).html());
-            console.log(key, value)
-        });
-
-    } else {
-        let lskey = 1;
-    }
-    ;*/
+    let survey_id = '${e://Field/SurveyID}';
 
     const socket = io('http://127.0.0.1:5000/test');
 
