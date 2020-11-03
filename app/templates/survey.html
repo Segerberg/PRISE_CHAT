@@ -8,7 +8,6 @@
     <tr>
       <th scope="col">Name</th>
       <th scope="col">Survey ID</th>
-      <th scope="col">Respondents</th>
       <th scope="col">Actions</th>
     </tr>
   </thead>
@@ -17,7 +16,6 @@
     <tr>
       <td><a href="{{url_for('survey_detail', id=survey.survey_id)}}">{{ survey.name }}</a></td>
       <td>{{ survey.survey_id }}</td>
-      <td></td>
       <td><form onsubmit="return confirm('Do you really want to delete the survey?');"  method="POST" action="{{ url_for('delete_survey', id=survey.id) }}"><button class="btn btn-danger" type="submit">Delete</button></form>
         <form onsubmit="return confirm('Do you really want to purge the survey?');"  method="POST" action="{{ url_for('purge_survey', id=survey.survey_id) }}"><button class="btn btn-warning" type="submit">Purge</button></form>
       </td>
