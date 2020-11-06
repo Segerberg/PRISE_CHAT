@@ -10,9 +10,10 @@ from flask_login import current_user, login_user, logout_user, login_required
 from sqlalchemy.exc import IntegrityError
 
 async_mode = None
-socketio = SocketIO(app, async_mode=async_mode, cors_allowed_origins=app.config['CORS'])
+socketio = SocketIO(app, async_mode=async_mode, cors_allowed_origins="*")
 thread = None
 thread_lock = Lock()
+
 
 def get_or_create(session, model, **kwargs):
     instance = session.query(model).filter_by(**kwargs).first()
@@ -33,7 +34,15 @@ def authenticated_only(f):
             return f(*args, **kwargs)
     return wrapped
 
-
+@app.route('/respondentchat/<id>')
+def participant_chat(id):
+    id = id.split('-')
+    surveys = Survey.query.all()
+    for survey in surveys:
+        print (survey.survey_id)
+        if survey.survey_id == id[0]:
+            return render_template('respondent_chat.html', survey_id=id[0], respondent_id=id[1])
+    return('404'), 404
 
 @app.route('/')
 @login_required
@@ -121,6 +130,25 @@ def _chat():
     print(chat.participant_id)
     return chat.participant_id
 
+@app.route('/_claimchat', methods=['GET', 'POST'])
+def _claimchat():
+    id = request.args.get('id')
+    cur_usr = request.args.get('user')
+    user = User.query.filter_by(username=cur_usr).first_or_404()
+    chat = Chat.query.filter_by(participant_id=id).first_or_404()
+    chat.user_id = user.id
+    db.session.commit()
+    return user.username
+
+@app.route('/_unclaimchat', methods=['GET', 'POST'])
+def _unclaimchat():
+    id = request.args.get('id')
+    chat = Chat.query.filter_by(participant_id=id).first_or_404()
+    chat.user_id = None
+    db.session.commit()
+    return 'success'
+
+
 @app.route('/_chatlist', methods=['GET', 'POST'])
 def _chatlist():
     si = (request.args.get('survey_id'))
@@ -165,10 +193,7 @@ def join(message):
 
 @socketio.on('my_room_event', namespace='/prise')
 def send_room_message(message):
-    try:
-        emit('my_response',
-             {'data': message['data'],'room':message['room']},
-             room=message['room'])
-    except KeyError as e:
-        print(e)
-        pass
+    emit('my_response',
+         {'data': message['data'],'room':message['room']},
+         room=message['room'])
+

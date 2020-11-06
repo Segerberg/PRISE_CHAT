@@ -12,6 +12,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
     password_hash = db.Column(db.String(128))
+    chats = db.relationship('Chat', backref='user', lazy='dynamic')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -37,6 +38,7 @@ class Chat(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     participant_id = db.Column(db.String(128), index=True, unique=True)
     survey_id = db.Column(db.Integer, db.ForeignKey('survey.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
 
     def __repr__(self):
@@ -48,7 +50,8 @@ class Chat(db.Model):
         return {
             'id': self.id,
             'participant_id': self.participant_id,
-            'survey_id': self.survey_id
+            'survey_id': self.survey_id,
+            'user_id': self.user_id
         }
 
 

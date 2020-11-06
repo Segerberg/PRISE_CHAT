@@ -25,8 +25,8 @@
     }
 
     .participant-list {
-        max-height: 1000px;
-
+        max-height: 800px;
+        height: 800px;
         overflow: scroll;
         -webkit-overflow-scrolling: touch;
     }
@@ -51,7 +51,7 @@
 
     <div class="col-md-3">
         <div class="panel panel-primary" id="result_panel">
-            <div class="panel-heading"><h3 class="panel-title">Participants</h3>
+            <div class="panel-heading"><h3 class="panel-title">Unclaimed chats</h3>
             </div>
             <div class="panel-body participant-list">
                 <ul class="list-group participants">
@@ -142,14 +142,17 @@
 
             let chattid = this.id.replace('chatbtnid_','');
             create_chat_window(chattid)
-              $("#chatbtnid_" + chattid).removeClass('btn-warning');
-              $("#chatbtnid_" + chattid).addClass('btn-default');
+            claimChat(chattid)
+              //$("#chatbtnid_" + chattid).removeClass('btn-warning');
+              //$("#chatbtnid_" + chattid).addClass('btn-default');
 
 
         });
            $(document).on('click', '.chat-box-panel', function () {
                 let chattid = this.id.replace('chat-box-panel-id_','');
                $("#" + chattid).hide();
+               unClaimChat(chattid)
+                $('#liid_' + chattid).show();
 
 
             //create_chat_window(chattid)
@@ -184,27 +187,53 @@
     socket.on('my_response', function (msg, cb) {
         console.log('Got it from ', msg.room)
         $('#cid' + msg.room).append('<br>' + $('<div/>').text(msg.data).html());
-        $("#chatbtnid_" + msg.room).removeClass('btn-default');
-        $("#chatbtnid_" + msg.room).addClass('btn-warning');
 
 
         $("#cid" + msg.room).animate({scrollTop: 200000}, "slow");
 
-        //$("#liid_"+msg.room).effect("highlight", {}, 3000);
+
 
 
         if (cb)
             cb();
     });
 </script>
+<script>
+    function claimChat(id) {
+        let curusr = '{{ current_user.username }}'
+        $.get('/_claimchat', {user: curusr, id:id}).done(function (response){
+            console.log('CLAIM',response)
+            //$("#liid_" + id).append('<span class="label label-success">'+response+'</span>')
+        })
+    };
+    function unClaimChat(id) {
+        $.get('/_unclaimchat', {id:id}).done(function (response){
+            console.log('UNCLAIM',response)
+
+            //$("#liid_" + id).append('<span class="label label-success">'+response+'</span>')
+        })
+
+    }
+
+</script>
 <script type=text/javascript>
     function get_chat_data() {
         let si = '{{survey_id}}';
+        let curusrid = '{{ current_user.id }}'
         $.get('/_chatlist', {survey_id:si}).done(function (response) {
             console.log("RESPONSE", response)
 
             $.each(response, function (key, val) {
                 $.each(val, function (key, val) {
+
+                        if (val.user_id){
+                            console.log("VALUSERID: ",val.user_id, 'CURRID: ',parseInt(curusrid) );
+                            $('#liid_' + val.participant_id).hide();
+                        }else{
+                            $('#liid_' + val.participant_id).show();
+                        }
+
+
                     if (!$('#liid_' + val.participant_id).length) {
 
                     let cbutton = jQuery('<a/>', {
@@ -222,8 +251,9 @@
                     $(".participants").prepend(li);
                     create_chat_window(val.participant_id);
                     $("#" + val.participant_id).hide();
-                }else{
-                        console.log('ELSE')
+                }
+                    else{
+
                     }
 
                 })
@@ -248,7 +278,10 @@ window.onbeforeunload = function() {
    return "Are you sure you wan't to leave the page? Leaving will clear all chat history!";
 };
 </script>
+<script>
+    console.log('timestamp:',   jQuery.now());
 
+</script>
 <p id="chatbox"></p>
 
 <p id="chatlist"></p>

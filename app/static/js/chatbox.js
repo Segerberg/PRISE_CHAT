@@ -1,6 +1,4 @@
-let qid = this.questionId;
-    let resp_id = '${e://Field/ResponseID}'
-    let survey_id = '${e://Field/SurveyID}';
+
     let socket = io('http://127.0.0.1:5000/prise'); // SET TO SERVER URI
 
     socket.on('connect', function () {
@@ -8,7 +6,7 @@ let qid = this.questionId;
         socket.emit('join', {room: resp_id, survey: survey_id, question_id: qid});
     });
 
-    socket.on('my_response', function (msg, cb) {
+    let x = socket.on('my_response', function (msg, cb) {
 
         jQuery('#chatbox').append('<br>' + jQuery('<div/>').text(msg.data).html());
         jQuery("#chatbox").animate({scrollTop: 200000}, "slow");
@@ -17,21 +15,22 @@ let qid = this.questionId;
         if (cb)
             cb();
     });
-    jQuery('#echobtn').click(function () {
+    jQuery('#echobtn').click(function (e) {
         socket.emit('my_room_event', {room: resp_id, data: jQuery('#emit_data').val(), question_id: 'qualtrics_id'});
+        e.stopPropagation();
         jQuery('#emit_data').val('');
     });
 
 
-(function ($) {
+(function (jQuery) {
 
-        let $chatbox = jQuery('.chatbox'),
-            $chatboxTitle = jQuery('.chatbox__title'),
-            $chatboxTitleClose = jQuery('.chatbox__title__close');
-        $chatboxTitle.on('click', function () {
-            $chatbox.toggleClass('chatbox--tray');
+        let chatbox = jQuery('.chatbox');
+        let chatboxTitle = jQuery('.chatbox__title');
+        let chatboxTitleClose = jQuery('.chatbox__title__close');
+            jQuery(chatboxTitle).on('click', function () {
+            jQuery(chatbox).toggleClass('chatbox--tray');
         });
-        $chatboxTitleClose.on('click', function (e) {
+        jQuery(chatboxTitleClose).on('click', function (e) {
             e.stopPropagation();
         });
 
