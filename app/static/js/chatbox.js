@@ -1,5 +1,7 @@
 
-    let socket = io('http://127.0.0.1:5000/prise'); // SET TO SERVER URI
+
+    namespace = '/prise';
+    let socket = io(namespace); // SET TO SERVER URI
 
     socket.on('connect', function () {
         //socket.emit('my_event', {data: 'I\'m connected!'});
