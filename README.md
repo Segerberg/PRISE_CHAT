@@ -1,8 +1,13 @@
 # PRISE CHAT
-A support chat application for integration with qualtrics thorugh embedding `<iframe>`
+A support chat application for integration with qualtrics through embedding `<iframe>`
 Used to communicate with research participants during live lab data collections in the PRISE research project
 
 [https://www.gu.se/forskning/prise](https://www.gu.se/forskning/prise)
+
+#Code
+Prise chat uses a python flask backend with socket.io for message transport. The docker container fires up a gunicorn 
+server with eventlet for socket support. 
+
 
 # Deployment
 PRISE CHAT is deployed for production in University of Gothenburgs
@@ -20,6 +25,9 @@ Other deployment options is of course possible kubernetes or custom *nix server
 
 
 Point your browser at [http://127.0.0.1:8000](http://127.0.0.1:8000)
+
+### Environment variables 
+TBD
 
 # Qualtrics setup
 TBD
