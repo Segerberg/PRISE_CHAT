@@ -42,7 +42,7 @@ def participant_chat(id):
         print (survey.survey_id)
         if survey.survey_id == id[0]:
             return render_template('respondent_chat.html', survey_id=id[0], respondent_id=id[1])
-    return('404'), 404
+    return(render_template('respondent_chat_404.html')), 404
 
 @app.route('/')
 @login_required
