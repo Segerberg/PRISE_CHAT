@@ -46,7 +46,12 @@
 <script src="//code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
-
+<style>
+    .read{
+        background-color: yellow;
+    }
+</style>
+  <audio id="buzzer" src="{{ url_for('static', filename='media/buzzer.mp3') }}" type="audio/mp3"></audio>
 
 
     <div class="col-md-3">
@@ -62,8 +67,6 @@
 
     <div id="myid" ></div>
 
-
-
 <script type=text/javascript>
     function create_chat_window(id) {
         let si = '{{survey_id}}';
@@ -77,11 +80,17 @@
 
             let panel = jQuery('<div/>', {
                 id: id,
-                class: 'col-xs-6 chat-panel '
+                class: 'col-xs-6 chat-panel'
             });
 
+            let glyph = jQuery('<span/>',{
+                class: 'pull-right',
+                id:'glyphid_'+id,
+                style:'color:yellow'
+            })
+
             let panelheading = jQuery('<div/>/', {
-                class: 'panel-heading chat-box-panel',
+                class: 'panel-heading chat-box-panel read',
                 id:'chat-box-panel-id_'+id
             });
             panelheading.html(id)
@@ -126,7 +135,7 @@
             panelfooter = panelfooter.append(inputgroup);
             panelbody = panelbody.append(container);
 
-            panel.append(panelheading).append(panelbody).append(panelfooter).appendTo('#myid');
+            panel.append(panelheading.append(glyph)).append(panelbody).append(panelfooter).appendTo('#myid');
         }
     }
 </script>
@@ -178,18 +187,24 @@
 <script>
     function emit_test(id){
         let newid = id.replace('btnid_','');
-        socket.emit('my_room_event', {room: newid, data: $('#inputid_'+newid).val() });
+        socket.emit('my_room_event', {room: newid, data: $('#inputid_'+newid).val(),'from_respondent':false});
     }
 
 
 </script>
 <script>
     socket.on('my_response', function (msg, cb) {
-        console.log('Got it from ', msg.room)
+        console.log('Got it from ', msg.from_respondent)
         $('#cid' + msg.room).append('<br>' + $('<div/>').text(msg.data).html());
 
-
+        if (msg.from_respondent){
+        $('#buzzer').get(0).play();
+        $('#glyphid_'+msg.room).addClass('glyphicon glyphicon-bell')
+        }else{
+            $('#glyphid_'+msg.room).removeClass('glyphicon glyphicon-bell')
+        }
         $("#cid" + msg.room).animate({scrollTop: 200000}, "slow");
+
 
 
 

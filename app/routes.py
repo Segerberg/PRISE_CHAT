@@ -194,6 +194,6 @@ def join(message):
 @socketio.on('my_room_event', namespace='/prise')
 def send_room_message(message):
     emit('my_response',
-         {'data': message['data'],'room':message['room']},
+         {'data': message['data'],'room':message['room'], 'from_respondent':message['from_respondent']},
          room=message['room'])
 

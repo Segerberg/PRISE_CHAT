@@ -18,11 +18,15 @@
             cb();
     });
     jQuery('#echobtn').click(function (e) {
-        socket.emit('my_room_event', {room: resp_id, data: jQuery('#emit_data').val(), question_id: 'qualtrics_id'});
+        socket.emit('my_room_event', {room: resp_id, data: jQuery('#emit_data').val(), question_id: 'qualtrics_id',from_respondent:true});
         e.stopPropagation();
         jQuery('#emit_data').val('');
     });
 
+
+setTimeout(function(){
+    $('.color').removeClass('article-unread').addClass('article-read');
+},5000);
 
 (function (jQuery) {
 
