@@ -1,0 +1,12 @@
+/* Paste into Look and feel > Style > Custom CSS */
+
+#iframe_main {
+    height: 100%;
+    width: 100%;
+}
+
+#idiv {
+    position: fixed;
+    left: 0px;
+    bottom: 0px;
+}
