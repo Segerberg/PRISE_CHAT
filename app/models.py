@@ -51,7 +51,7 @@ class Chat(db.Model):
         """Return chat data in easily serializable format"""
         return {
             'id': self.id,
-            'active': self.active,
+            'user_active': self.active,
             'participant_id': self.participant_id,
             'survey_id': self.survey_id,
             'user_suggestion': self.user_suggestion,

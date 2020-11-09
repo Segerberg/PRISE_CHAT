@@ -254,15 +254,13 @@
                         $(".participants").prepend(li);
                         create_chat_window(val.participant_id);
                         $("#" + val.participant_id).hide();
-                        if (!val.active) {
-                            $('#chat-box-panel-id_' + val.participant_id).prepend(' <span class="glyphicon glyphicon-remove-sign pull-left" style="color: red">&nbsp;</span>')
-                            $('#cid' + val.participant_id).append('<br>' + $('<div/>').text('CHAT ENDED').html());
-                            console.log('not active', val.participant_id)
+
+
+
+                    }   if (!val.user_active) {
+                            $('#chat-box-panel-id_' + val.participant_id).html(val.participant_id + '<span class="glyphicon glyphicon-remove-sign pull-left" style="color: red">&nbsp;</span>')
+
                         }
-
-                    } else {
-
-                    }
 
                 })
             });

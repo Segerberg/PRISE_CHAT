@@ -162,7 +162,7 @@ def _endchat():
     chat = Chat.query.filter_by(participant_id=resp_id).first_or_404()
     chat.active = False
     db.session.commit()
-    return ('success'), 200
+    return (chat.participant_id), 200
 
 
 @app.route('/login', methods=['GET', 'POST'])
