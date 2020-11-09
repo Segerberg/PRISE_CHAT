@@ -8,6 +8,7 @@ from app.forms import LoginForm, AddSurveyForm, AddUserForm
 from app.models import User, Survey, Chat
 from flask_login import current_user, login_user, logout_user, login_required
 from sqlalchemy.exc import IntegrityError
+import random
 
 async_mode = None
 socketio = SocketIO(app, async_mode=async_mode, cors_allowed_origins="*")
@@ -155,6 +156,14 @@ def _chatlist():
     chats = Chat.query.filter_by(survey_id=si).all()
     return jsonify(json_list=[i.serialize for i in chats])
 
+@app.route('/_endchat', methods=['POST'])
+def _endchat():
+    resp_id = request.args['resp_id']
+    chat = Chat.query.filter_by(participant_id=resp_id).first_or_404()
+    chat.active = False
+    db.session.commit()
+    return ('success'), 200
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -187,13 +196,26 @@ def test_broadcast_message(message):
 
 @socketio.on('join', namespace='/prise')
 def join(message):
-    get_or_create(db.session, Chat, participant_id=message['room'], survey_id=message['survey'],)
+    try:
+        get_or_create(db.session, Chat, participant_id=message['room'], survey_id=message['survey'], active=True,
+                      user_suggestion=suggest_user())
+    except IntegrityError:
+        pass
+
     join_room(message['room'])
 
 
 @socketio.on('my_room_event', namespace='/prise')
 def send_room_message(message):
-    emit('my_response',
-         {'data': message['data'],'room':message['room'], 'from_respondent':message['from_respondent']},
-         room=message['room'])
+    try:
+        emit('my_response',
+             {'data': message['data'],'room':message['room'], 'from_respondent':message['from_respondent']},
+             room=message['room'])
+    except KeyError:
+        pass
 
+
+def suggest_user():
+    u = User.query.all()
+    suggestions = [user.username for user in u ]
+    return random.choice(suggestions)

@@ -70,9 +70,9 @@
 <script type=text/javascript>
     function create_chat_window(id) {
         let si = '{{survey_id}}';
-        console.log(si)
+        //console.log(si)
         if ($('#' + id).length) {
-            console.log("Chat window " + id + " already exists")
+            //console.log("Chat window " + id + " already exists")
             socket.emit('join', {room: id, survey: si});
             $("#" + id).show();
         } else {
@@ -83,15 +83,15 @@
                 class: 'col-xs-6 chat-panel'
             });
 
-            let glyph = jQuery('<span/>',{
+            let glyph = jQuery('<span/>', {
                 class: 'pull-right',
-                id:'glyphid_'+id,
-                style:'color:yellow'
+                id: 'glyphid_' + id,
+                style: 'color:yellow'
             })
 
             let panelheading = jQuery('<div/>/', {
                 class: 'panel-heading chat-box-panel read',
-                id:'chat-box-panel-id_'+id
+                id: 'chat-box-panel-id_' + id
             });
             panelheading.html(id)
 
@@ -138,39 +138,36 @@
             panel.append(panelheading.append(glyph)).append(panelbody).append(panelfooter).appendTo('#myid');
         }
     }
-</script>
-<script>
+
     $(document).ready(function () {
         $(document).on('click', '.send', function () {
             emit_test(this.id);
-            let inputid = this.id.replace('btnid_','#inputid_');
+            let inputid = this.id.replace('btnid_', '#inputid_');
             $(inputid).val('');
 
         });
         $(document).on('click', '.chatt-button', function () {
 
-            let chattid = this.id.replace('chatbtnid_','');
+            let chattid = this.id.replace('chatbtnid_', '');
             create_chat_window(chattid)
             claimChat(chattid)
-              //$("#chatbtnid_" + chattid).removeClass('btn-warning');
-              //$("#chatbtnid_" + chattid).addClass('btn-default');
+            //$("#chatbtnid_" + chattid).removeClass('btn-warning');
+            //$("#chatbtnid_" + chattid).addClass('btn-default');
 
 
         });
-           $(document).on('click', '.chat-box-panel', function () {
-                let chattid = this.id.replace('chat-box-panel-id_','');
-               $("#" + chattid).hide();
-               unClaimChat(chattid)
-                $('#liid_' + chattid).show();
+        $(document).on('click', '.chat-box-panel', function () {
+            let chattid = this.id.replace('chat-box-panel-id_', '');
+            $("#" + chattid).hide();
+            unClaimChat(chattid)
+            $('#liid_' + chattid).show();
 
 
             //create_chat_window(chattid)
         });
 
     });
-</script>
 
-<script type="text/javascript" charset="utf-8">
     namespace = '/prise';
     const socket = io(namespace);
     $(document).ready(function () {
@@ -182,92 +179,88 @@
         get_chat_data();
 
     });
-</script>
 
-<script>
-    function emit_test(id){
-        let newid = id.replace('btnid_','');
-        socket.emit('my_room_event', {room: newid, data: $('#inputid_'+newid).val(),'from_respondent':false});
+
+    function emit_test(id) {
+        let newid = id.replace('btnid_', '');
+        socket.emit('my_room_event', {room: newid, data: $('#inputid_' + newid).val(), 'from_respondent': false});
     }
 
 
-</script>
-<script>
     socket.on('my_response', function (msg, cb) {
-        console.log('Got it from ', msg.from_respondent)
         $('#cid' + msg.room).append('<br>' + $('<div/>').text(msg.data).html());
-
-        if (msg.from_respondent){
-        $('#buzzer').get(0).play();
-        $('#glyphid_'+msg.room).addClass('glyphicon glyphicon-bell')
-        }else{
-            $('#glyphid_'+msg.room).removeClass('glyphicon glyphicon-bell')
+        if (msg.from_respondent) {
+            if ($("#" + msg.room).is(":visible")) {
+                $('#buzzer').get(0).play();
+            }
+            $('#glyphid_' + msg.room).addClass('glyphicon glyphicon-bell')
+        } else {
+            $('#glyphid_' + msg.room).removeClass('glyphicon glyphicon-bell')
         }
         $("#cid" + msg.room).animate({scrollTop: 200000}, "slow");
-
-
-
 
 
         if (cb)
             cb();
     });
-</script>
-<script>
+
+
     function claimChat(id) {
         let curusr = '{{ current_user.username }}'
-        $.get('/_claimchat', {user: curusr, id:id}).done(function (response){
-            console.log('CLAIM',response)
-            //$("#liid_" + id).append('<span class="label label-success">'+response+'</span>')
+        $.get('/_claimchat', {user: curusr, id: id}).done(function (response) {
+
         })
     };
+
     function unClaimChat(id) {
-        $.get('/_unclaimchat', {id:id}).done(function (response){
-            console.log('UNCLAIM',response)
+        $.get('/_unclaimchat', {id: id}).done(function (response) {
+            //console.log('UNCLAIM',response)
 
             //$("#liid_" + id).append('<span class="label label-success">'+response+'</span>')
         })
 
     }
 
-</script>
-<script type=text/javascript>
     function get_chat_data() {
         let si = '{{survey_id}}';
         let curusrid = '{{ current_user.id }}'
-        $.get('/_chatlist', {survey_id:si}).done(function (response) {
-            console.log("RESPONSE", response)
+        $.get('/_chatlist', {survey_id: si}).done(function (response) {
+            //console.log("RESPONSE", response)
 
             $.each(response, function (key, val) {
                 $.each(val, function (key, val) {
-
-                        if (val.user_id){
-                            console.log("VALUSERID: ",val.user_id, 'CURRID: ',parseInt(curusrid) );
-                            $('#liid_' + val.participant_id).hide();
-                        }else{
-                            $('#liid_' + val.participant_id).show();
-                        }
+                    if (val.user_id) {
+                        console.log("VALUSERID: ", val.user_id, 'CURRID: ', parseInt(curusrid));
+                        $('#liid_' + val.participant_id).hide();
+                    } else {
+                        $('#liid_' + val.participant_id).show();
+                    }
 
 
                     if (!$('#liid_' + val.participant_id).length) {
 
-                    let cbutton = jQuery('<a/>', {
-                        id: 'chatbtnid_' + val.participant_id,
+                        let cbutton = jQuery('<a/>', {
+                            id: 'chatbtnid_' + val.participant_id,
+                            class: 'btn btn-default chatt-button',
+                            type: 'button',
+                        }).html(val.participant_id);
+                        let li = jQuery('<li>', {
+                            class: 'list-group-item',
+                            id: 'liid_' + val.participant_id,
+                        });
 
-                        class: 'btn btn-default chatt-button',
-                        type: 'button',
-                    }).html(val.participant_id);
-                    let li = jQuery('<li>', {
-                        class: 'list-group-item',
-                        id: 'liid_' + val.participant_id,
-                    });
+                        li.append(cbutton);
+                        li.append('<span class="pull-right label label-default" style="font-size: 12px">' + val.user_suggestion) + '</span>'
+                        $(".participants").prepend(li);
+                        create_chat_window(val.participant_id);
+                        $("#" + val.participant_id).hide();
+                        if (!val.active) {
+                            $('#chat-box-panel-id_' + val.participant_id).prepend(' <span class="glyphicon glyphicon-remove-sign pull-left" style="color: red">&nbsp;</span>')
+                            $('#cid' + val.participant_id).append('<br>' + $('<div/>').text('CHAT ENDED').html());
+                            console.log('not active', val.participant_id)
+                        }
 
-                    li.append(cbutton);
-                    $(".participants").prepend(li);
-                    create_chat_window(val.participant_id);
-                    $("#" + val.participant_id).hide();
-                }
-                    else{
+                    } else {
 
                     }
 
@@ -279,24 +272,19 @@
             $('#chatlist').text("{{ ('Error: Could not contact server.') }}");
         });
     }
-</script>
-<script>
-    setInterval( function(){
-    get_chat_data()
-  }  , 5000 );
 
 
-</script>
-<script>
-// Warning before leaving the page (back button, or outgoinglink)
-window.onbeforeunload = function() {
-   return "Are you sure you wan't to leave the page? Leaving will clear all chat history!";
-};
-</script>
-<script>
-    console.log('timestamp:',   jQuery.now());
+    setInterval(function () {
+        get_chat_data()
+    }, 5000);
 
+
+    // Warning before leaving the page (back button, or outgoinglink)
+    window.onbeforeunload = function () {
+        return "Are you sure you wan't to leave the page? Leaving will clear all chat history!";
+    };
 </script>
+
 <p id="chatbox"></p>
 
 <p id="chatlist"></p>

@@ -36,8 +36,10 @@ class Survey(db.Model):
 
 class Chat(db.Model):
     id = db.Column(db.Integer,primary_key=True)
+    active = db.Column(db.Boolean)
     participant_id = db.Column(db.String(128), index=True, unique=True)
     survey_id = db.Column(db.Integer, db.ForeignKey('survey.id'))
+    user_suggestion = db.Column(db.String(128))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
 
@@ -49,9 +51,12 @@ class Chat(db.Model):
         """Return chat data in easily serializable format"""
         return {
             'id': self.id,
+            'active': self.active,
             'participant_id': self.participant_id,
             'survey_id': self.survey_id,
-            'user_id': self.user_id
+            'user_suggestion': self.user_suggestion,
+            'user_id': self.user_id,
+
         }
 
 
