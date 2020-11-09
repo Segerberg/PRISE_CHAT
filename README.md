@@ -17,6 +17,8 @@ needs of Prise. If anyone want to enhance the application please feel free to ma
 * It is not possible to save chats (This is a feature not a bug)
 * The user model is extremely simple (But safe)
 * Uses sqlalchemy ORM (defaults to sqlite but any other DB supported by the ORM should work out of the box)
+* No internalization (Admin UI in english chatbox in Swedish )
+
 
 
 
