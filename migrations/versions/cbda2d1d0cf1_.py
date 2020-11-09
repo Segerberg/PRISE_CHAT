@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: efd19ee6c332
+Revision ID: cbda2d1d0cf1
 Revises: 
-Create Date: 2020-11-07 16:08:37.349313
+Create Date: 2020-11-09 15:29:16.366618
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'efd19ee6c332'
+revision = 'cbda2d1d0cf1'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -34,8 +34,10 @@ def upgrade():
     op.create_index(op.f('ix_user_username'), 'user', ['username'], unique=True)
     op.create_table('chat',
     sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('active', sa.Boolean(), nullable=True),
     sa.Column('participant_id', sa.String(length=128), nullable=True),
     sa.Column('survey_id', sa.Integer(), nullable=True),
+    sa.Column('user_suggestion', sa.String(length=128), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['survey_id'], ['survey.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
