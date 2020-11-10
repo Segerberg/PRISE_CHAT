@@ -156,7 +156,7 @@ def _chatlist():
     chats = Chat.query.filter_by(survey_id=si).all()
     return jsonify(json_list=[i.serialize for i in chats])
 
-@app.route('/_endchat', methods=['POST'])
+@app.route('/_endchat', methods=['GET', 'POST'])
 def _endchat():
     resp_id = request.args['resp_id']
     chat = Chat.query.filter_by(participant_id=resp_id).first_or_404()
