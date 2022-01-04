@@ -12,6 +12,8 @@
 
         jQuery('#chatbox').append('<br>' + jQuery('<div/>').text(msg.data).html());
         jQuery("#chatbox").animate({scrollTop: 200000}, "slow");
+        jQuery('.chatbox').removeClass('chatbox--tray');
+        jQuery('.chatbox').addClass('chatbox');
         //localStorage.setItem(lskey += 1, msg.data)
 
         if (cb)
